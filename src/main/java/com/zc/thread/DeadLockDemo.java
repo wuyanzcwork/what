@@ -1,4 +1,4 @@
-package main.java.com.zc.thread;
+package com.zc.thread;
 
 /**
  * Created by zhangchao7 on 16/10/10.
@@ -17,7 +17,6 @@ public class DeadLockDemo {
         Thread thread1 = new Thread(new Runnable() {
             @Override
             public void run() {
-
                 synchronized (A) {
                     try {
                         Thread.currentThread().sleep(2000);

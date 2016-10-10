@@ -1,4 +1,4 @@
-package main.java.com.zc.thread;
+package com.zc.thread;
 
 /**
  * Created by zhangchao7 on 16/10/10.
