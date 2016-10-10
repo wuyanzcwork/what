@@ -1,0 +1,12 @@
+out/
+rebel.xml
+*svn*
+*iml
+.classpath
+.project
+.settings/
+build/
+target/
+.mymetadata
+bin/
+.idea/
