@@ -22,7 +22,7 @@ import org.apache.zookeeper.data.Stat;
  */
 public class ZookeeperAsyncMaster implements Watcher {
 
-	private static final String address = "59.110.45.89:2181,59.110.45.89:2182,59.110.45.89:2183";
+	private static final String address = "127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183";
 	
 	private ZooKeeper zk;
 	
