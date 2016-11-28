@@ -7,13 +7,10 @@ import org.apache.zookeeper.AsyncCallback.StringCallback;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.KeeperException.Code;
-import org.apache.zookeeper.KeeperException.ConnectionLossException;
-import org.apache.zookeeper.KeeperException.NoNodeException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
-import org.apache.zookeeper.data.Stat;
 
 /**
  * @author zhangchao7
@@ -52,34 +49,9 @@ public class ZookeeperAsyncMaster implements Watcher {
 	 * 因为是异步的不需要抛出异常
 	 * 提交任务后等待call回调判断是否创建成功
 	 */
-	public void runForMaster() {
+	public void runForMaster(byte[] data) {
 		zk.create("/master", serverid.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE,
-				CreateMode.EPHEMERAL, callback, null);
-	}
-	
-	/**
-	 * 其它异常自旋获取
-	 * @return
-	 */
-	public boolean checkForMaster() {
-		
-		Stat stat = new Stat();
-		while( true ) {
-			try {
-				byte[] data = zk.getData("/master", false, stat);
-				isLeader = new String(data).equals(serverid);
-				break;
-			} catch (NoNodeException e) {
-				e.printStackTrace();
-				isLeader = false;
-				break;
-			} catch (ConnectionLossException e) {
-				e.printStackTrace();
-			} catch (Exception e) {
-				e.printStackTrace();
-			} 
-		}
-		return isLeader;
+				CreateMode.EPHEMERAL, callback, data);
 	}
 	
 	public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
@@ -107,7 +79,7 @@ public class ZookeeperAsyncMaster implements Watcher {
 		ZookeeperAsyncMaster m = new ZookeeperAsyncMaster();
 		m.startZk();
 		
-		m.runForMaster();
+		m.runForMaster(new byte[]{0});
 
 		Thread.sleep(10000);
 		
@@ -123,7 +95,7 @@ public class ZookeeperAsyncMaster implements Watcher {
 			System.out.println( "callback:resultCode:"+resultCode+",path:"+path+",context:"+context+",name:"+name+",isLeader:"+isLeader ); 
 			switch (resultCode) {
 			case Code.ConnectionLoss:
-				checkForMaster();
+				runForMaster((byte[])context);
 				break;
 			case Code.Ok:
 				isLeader = true;
