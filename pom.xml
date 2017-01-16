@@ -5,7 +5,7 @@
 
 	<groupId>com.zc.play</groupId>
 	<artifactId>what</artifactId>
-	<packaging>jar</packaging>
+	<packaging>war</packaging>
 	<version>1.0-SNAPSHOT</version>
 
 	<dependencies>
