@@ -9,8 +9,11 @@ import java.util.Random;
 public class BubbleSort {
 
     public static void bubbleSort(int[] arr) {
+        System.out.println("testbranch2");
         System.out.println("testbranch1");
         int length = arr.length;
+        System.out.println("testbranch2");
+        System.out.println("testbranch2");
         System.out.println("testbranch1");
         for( int i=1;i<length;i++ ) {
             int temp = 0;
@@ -23,6 +26,7 @@ public class BubbleSort {
             }
         }
         System.out.println("testbranch1");
+        System.out.println("testbranch2");
     }
 
     public static void main(String[] args) {
