@@ -8,22 +8,17 @@ import java.util.Random;
 public class ShellSort {
 
     public static void shellSort(int[] a) {
+        for( int gap=a.length/2;gap>0;gap/=2 ) {
 
-        for( int r=a.length/2;r>=1;r/=2 ) {
-
-            int temp = 0;
-            int index = 0;
-            for( int i=r;i<a.length;i++ ) {
-                temp = a[i];
-                index = i-r;
-                while( index>=0 && temp<a[index] ) {
-                    a[index+r] = a[index];
-                    index-=r;
+            for( int i=gap;i<a.length;i++ ) {
+                int j=0;
+                int temp = a[i];
+                for( j=i;j>=gap&&temp<a[j-gap];j-=gap ) {
+                    a[j] = a[j-gap];
                 }
-                a[index+r] = temp;
+                a[j] = temp;
             }
         }
-
     }
 
     public static void main(String[] args) {

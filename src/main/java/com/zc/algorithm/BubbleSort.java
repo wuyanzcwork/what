@@ -9,9 +9,7 @@ import java.util.Random;
 public class BubbleSort {
 
     public static void bubbleSort(int[] arr) {
-        System.out.println("testbranch本地的");
         int length = arr.length;
-        System.out.println("testbranch本地的");
         for( int i=1;i<length;i++ ) {
             int temp = 0;
             for( int j=0;j<length-i;j++ ) {
@@ -22,7 +20,6 @@ public class BubbleSort {
                 }
             }
         }
-        System.out.println("testbranch本地的");
     }
 
     public static void main(String[] args) {

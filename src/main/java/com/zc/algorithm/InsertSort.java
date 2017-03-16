@@ -8,17 +8,15 @@ import java.util.Random;
 public class InsertSort {
 
     public static void insertSort(int[] arr) {
-        System.out.println("本地的");
-        int temp = 0;
-        int index = 0;
+
+        int j = 0;
         for( int i=1;i<arr.length;i++ ) {
-            temp = arr[i];
-            index = i-1;
-            while( index>=0 && temp<arr[index] ) {
-                arr[index+1] = arr[index];
-                index--;
+            int temp = arr[i];
+            for( j=i;j>0&&temp<arr[j-1];j--) {
+                arr[j]=arr[j-1];
             }
-            arr[index+1] = temp;
+            System.out.println("j=="+j);
+            arr[j] = temp;
         }
     }
 
