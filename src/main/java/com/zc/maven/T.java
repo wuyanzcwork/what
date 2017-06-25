@@ -17,6 +17,10 @@ public class T {
                 System.out.println("what_1");
                 System.out.println("what_1");
                 System.out.println("what_1");
+                System.out.println("what_2");
+                System.out.println("what_2");
+                System.out.println("what_2");
+                System.out.println("what_2");
                 return new Random().nextInt(100);
             }
         });
@@ -27,6 +31,10 @@ public class T {
                 System.out.println("what_1");
                 System.out.println("what_1");
                 System.out.println("what_1");
+                System.out.println("what_2");
+                System.out.println("what_2");
+                System.out.println("what_2");
+                System.out.println("what_2");
                 return new Random().nextInt(100);
             }
         });
