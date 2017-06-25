@@ -13,12 +13,14 @@ public class T {
         Future<Integer> future = threadPool.submit(new Callable<Integer>() {
             public Integer call() throws Exception {
                 System.out.println("what_2");
+                System.out.println("what_1");
                 return new Random().nextInt(100);
             }
         });
         Future<Integer> futureNew = threadPool.submit(new Callable<Integer>() {
             public Integer call() throws Exception {
                 System.out.println("what_2");
+                System.out.println("what_1");
                 return new Random().nextInt(100);
             }
         });
