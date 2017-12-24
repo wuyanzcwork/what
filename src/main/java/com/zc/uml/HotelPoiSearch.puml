@@ -1,0 +1,113 @@
+@startuml
+
+/'定义各个模块'/
+
+box "客户端" #LightYellow
+participant client as client
+end box
+
+box "搜索API" #LightPink
+participant searchApi as api
+end box
+
+box "convert函数" #LightGreen
+participant convert as convert
+end box
+
+box "service" #LightBlue
+participant hotelManualMenuService as manualMenuService
+participant SearchBannerService as bannerService
+participant SearchRankingService as rerankService
+participant BrandService as brandService
+participant SearchDataLogService as logService
+participant HotelSummaryService as summaryService
+participant RankingPoiAttrService as rankingPoiAttrService
+participant SearchAdsService as searchAdsService
+end box
+
+
+
+client -> api:传递请求参数
+activate api
+api->convert:组装bean start
+activate convert
+convert->manualMenuService:获取手工添加的查询菜单\n配置(低价高星,今夜特价等)
+activate manualMenuService
+manualMenuService->manualMenuService:如果选择了低价高星,今夜特价等选项\n根据选择的menuId去octoConfig取\n对应的menu配置
+manualMenuService->manualMenuService:根据配置确定是否需要加载对应城市\n平均价格
+manualMenuService-->convert
+deactivate manualMenuService
+convert->convert:根据配置的手工添加menu的cateId\n替换客户端传递的cateId(20)
+convert->convert:如果是多人住宿类别,取octoConfig\n配置的每页展示条数,否则取参数里的
+convert->convert:如果选了低价高星等,price取客户端\n传递的price和配置的price的交集
+convert->convert:设置默认排序方式为智能(smart)
+convert->convert:设置一些埋点参数,坐标参数\n压测参数等
+manualMenuService-->convert:返回
+convert-->api:返回bean end
+deactivate convert
+api->api:checkVersion校验版本\n7.8版本后\n只支持公寓民宿,多人出行\n酒店品类,高星酒店\n海外酒店品类
+api->bannerService:预加载各类banner数据
+activate bannerService
+bannerService->bannerService:1.获取酒店交叉推荐\n列表页景点列表
+bannerService->bannerService:2.先按照feed流的方式\n获取feed流广告如果不符合\n展示要求则按照banner\n类别再获取一次
+bannerService->bannerService:3.获取热门商圈信息
+bannerService->bannerService:4.获取寻找好的酒店banner\n从summry获取
+bannerService->bannerService:5.海外酒店获取城市下的地标\n（兴趣点）列表\n地铁站，机场等信息
+bannerService-->api:加载完毕(备用)
+deactivate bannerService
+api->rerankService:通过各种条件（关键词）搜索或筛选出相应的poi以及下挂的deal，根据请求进行排序，如果需要也会返回推荐的内容
+activate rerankService
+rerankService->rerankService:1.组装sourceType\nchannel等数据到extensions
+rerankService->rerankService:2.获取指定目的地的名称信息
+rerankService->rerankService:3.添加广告需要的字段
+rerankService->rerankService:4.根据房型设置是否支持预付
+rerankService-->api:返回搜索HotelResponse
+deactivate rerankService
+api->brandService:根据brandId获取品牌信息备用
+activate brandService
+brandService->api: 返回品牌数据
+deactivate brandService
+api->logService:获取log数据备用(后面会记录日志)
+activate logService
+logService->api: 返回log数据
+deactivate logService
+api->summaryService:调用Summary获取poi详情
+activate summaryService
+summaryService->api: 返回poi详情
+deactivate summaryService
+api->summaryService:将List<poiItem>转换成List<SearchPoi>
+activate summaryService
+summaryService->summaryService:1.组装abtestMap
+summaryService->summaryService:2.设置各种促销标签\n文案等(非常多)
+summaryService->api: 返回poi详情
+deactivate summaryService
+api->rankingPoiAttrService:根据置底标签\n设置合作文案
+activate rankingPoiAttrService
+rankingPoiAttrService->rankingPoiAttrService:根据置底标签poi_downstat\n设置提示文案和距离文案
+note over of rankingPoiAttrService
+poi_downstat
+1 满房 2 未合作
+cooperated是否合作的状态
+end note
+rankingPoiAttrService-->api:返回searchPoi参数填充结果
+deactivate rankingPoiAttrService
+api->searchAdsService:如果是头条的channel\n单个poi上可能有广告
+activate searchAdsService
+searchAdsService->searchAdsService:是头条的channel并且\npoiList.size>5设定广告
+searchAdsService->searchAdsService:设定广告的spv打点数据\n广告展位数据等
+searchAdsService-->api:返回searchPoi参数填充结果
+deactivate searchAdsService
+api->api:酒店位置posdesc信息填充\n国内酒店需要,海外目前不需要
+api->api:非美团的港澳台id\n需要展示总价按钮(右上角,加税总价)
+api->api:设置地图搜索需要的\n数据包括坐标信息,提示文案
+api->api:设置推荐poi列表,展示推荐结果
+api->api:异地搜索时的文案提示
+api->api:POI列表尽头的文案提示
+api->api:填充结果banner信息
+api->api:填充结果品牌数据
+api->api:记录埋点信息(stid,ctpoi)
+api->api:记录日志
+api->api:空搜或者搜索选项\n区间过大放入到队列缓存
+api->api:浏览过的数据加入到缓存
+api->api:记录CAT
+@enduml

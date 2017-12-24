@@ -1,0 +1,46 @@
+@startuml
+
+/'定义各个模块'/
+
+box "客户端" #LightYellow
+participant client as client
+end box
+
+box "搜索API" #LightPink
+participant searchApi as api
+end box
+
+box "service" #LightGreen
+participant apiService as service
+end box
+
+box "依赖的业务模块" #LightGreen
+    participant HotelCityService as hotelCityService
+    participant HotelSuggestService as suggestService
+end box
+
+/'模块之间依赖关系'/
+client -> api:传递请求参数
+activate api
+
+api->hotelCityService:港澳台(HMT指的是港澳台)点评的cityId与美团的cityId转换
+activate hotelCityService
+hotelCityService-->api:返回转换ID并设值
+deactivate hotelCityService
+
+activate api
+api->api:把request的参数转换成bean
+deactivate api
+
+api->service:调用apiService获取数据
+activate service
+service -> suggestService: 组装参数后请求suggestService获取智能推荐数据
+activate suggestService
+suggestService-->service:返回智能推荐数据
+deactivate suggestService
+service-->api: 返回数据给api
+deactivate service
+api-->client:数据返回给客户端
+deactivate api
+
+@enduml

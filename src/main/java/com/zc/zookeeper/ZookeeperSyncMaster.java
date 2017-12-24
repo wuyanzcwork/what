@@ -1,18 +1,13 @@
 package com.zc.zookeeper;
 
-import java.io.IOException;
-import java.util.Random;
-
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.*;
 import org.apache.zookeeper.KeeperException.ConnectionLossException;
 import org.apache.zookeeper.KeeperException.NoNodeException;
 import org.apache.zookeeper.KeeperException.NodeExistsException;
-import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
+
+import java.io.IOException;
+import java.util.Random;
 
 /**
  * @author zhangchao7

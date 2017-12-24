@@ -1,16 +1,11 @@
 package com.zc.zookeeper;
 
+import org.apache.zookeeper.AsyncCallback.StringCallback;
+import org.apache.zookeeper.*;
+import org.apache.zookeeper.KeeperException.Code;
+
 import java.io.IOException;
 import java.util.Random;
-
-import org.apache.zookeeper.AsyncCallback.StringCallback;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.KeeperException.Code;
-import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.ZooKeeper;
 
 /**
  * @author zhangchao7

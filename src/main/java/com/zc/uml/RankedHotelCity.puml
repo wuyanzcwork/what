@@ -1,0 +1,32 @@
+@startuml
+
+/'定义各个模块'/
+
+box "客户端" #LightYellow
+participant client as client
+end box
+
+box "搜索API" #LightPink
+participant searchApi as api
+end box
+
+box "tdc" #LightGreen
+participant tdc as tdc
+end box
+
+/'模块之间依赖关系'/
+client -> api:传递请求参数
+activate api
+api->tdc:调用tdc获取城市列表数据
+activate tdc
+tdc->api:返回城市列表数据
+deactivate tdc
+api->api:筛选出所有cityId
+api->tdc:调用tdc批量获取时区数据接口
+activate tdc
+tdc->api:返回时区数据
+deactivate tdc
+api->api:转换时区数据
+api->client:返回数据给客户端
+deactivate api
+@enduml

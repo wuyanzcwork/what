@@ -1,0 +1,71 @@
+@startuml
+
+/'定义各个模块'/
+
+box "客户端" #LightYellow
+participant client as client
+end box
+
+box "搜索API" #LightPink
+participant searchApi as api
+end box
+
+box "service" #LightGreen
+participant apiService as service
+end box
+
+box "mcc配置中心" #LightBlue
+participant mcc as mcc
+end box
+
+box "依赖的业务模块" #LightGreen
+    participant HotelCityService as hotelCityService
+    participant HotelHotWordClient as hotwordClient
+    participant HotwordAndAreaResponse as response
+end box
+
+/'模块之间依赖关系'/
+client -> api:传递请求参数
+activate api
+
+api->hotelCityService:港澳台(HMT指的是港澳台)点评的cityId与美团的cityId转换
+activate hotelCityService
+hotelCityService-->api:返回转换ID并设值
+deactivate hotelCityService
+
+activate api
+api->api:校验sourceType参数\n并把request的参数转换成bean
+deactivate api
+api->service:调用apiService获取数据
+activate service
+
+service->mcc:获取搜索热词降级状态
+activate mcc
+mcc-->service:返回搜索热词降级状态
+deactivate mcc
+service-->api:如果需要降级直接返回失败
+service->hotwordClient:调用thrift服务查询\n详细热词数据
+activate hotwordClient
+hotwordClient-->service:返回详细热词数据(备用)
+deactivate hotwordClient
+
+service->response:构建http响应结果数据
+activate response
+'note over of response
+'此时会过滤thrift接口返回的热词数据
+'接口数据可能返回不只热门,品牌,机场/车站,景点等分类数据
+'会以mcc配置的分类类别来做数据过滤,同时title,iconUrl等
+'数据都是在mcc配置的,并非接口返回的
+'end note
+response->response:1.遍历有效的热词数据\n如果isOperate为true\n则需要设置单条热词的样式
+response->response:2.判断单个热词是否还有子热词数据\n如果有需要设置子热词数据
+response->response:3.根据thrift接口返回的结果设置是否\n有更多数据,有则展示更多按钮
+response-->service:返回数据
+deactivate response
+service-->api: 返回数据给api
+deactivate service
+api-->client:数据返回给客户端
+deactivate api
+
+
+@enduml

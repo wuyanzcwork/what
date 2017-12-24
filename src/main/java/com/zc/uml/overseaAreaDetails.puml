@@ -1,0 +1,77 @@
+@startuml
+
+/'定义各个模块'/
+
+box "客户端" #LightYellow
+participant client as client
+end box
+
+box "搜索API" #LightPink
+participant searchApi as api
+end box
+
+box "service" #LightGreen
+participant apiService as service
+end box
+
+box "本地cityCache" #LightBlue
+    participant cityCache
+end box
+
+box "依赖的业务模块" #LightGreen
+    participant HotelCityService as hotelCityService
+    participant BusinessSurfaceService as surfaceService
+end box
+
+/'模块之间依赖关系'/
+client -> api:传递请求参数
+activate api
+api->api:转换参数取cityId组装bean
+api->service:传递参数bean获取详细数据
+activate service
+service -> cityCache:通过cityId获取cityName
+activate cityCache
+cityCache -> hotelCityService: 从tdc加载所有的海外\ncityId->cityName的数据
+activate hotelCityService
+hotelCityService-->cityCache: 通过CollectionUtils.find\n遍历查询cache中的cityName
+deactivate hotelCityService
+/'笔记部分'/
+note right
+    第一次获取数据时会加载所有数据到本地的guava cache中,缓存中主要存储了
+    cityId->cityName的信息并定时刷新数据保证数据有效性,目前是21分钟刷
+    新一次,加载cache的时候分为两种类型
+    1.ALL_OVERSEA_CITY:所有的海外city数据
+    2.OVERSEA_CITY:mcc配置的city列表和ALL_OVERSEA_CITY的数据的交集
+    ****查询数据时是按分页查的,预估了一个数据量级作为最大区间
+end note
+cityCache-->service: 返回cityName
+deactivate cityCache
+service -> surfaceService: 通过cityId和区域类型查询需要展示的区域ID列表,\n区域类型目前是固定值0(0商圈,1旅游区)
+activate surfaceService
+surfaceService-->service:返回需要展示的区域ID列表List<Integer>
+deactivate surfaceService
+service->surfaceService:根据返回的区域ID列表再获取一次区域ID的detail详细信息
+activate surfaceService
+/'笔记部分'/
+note over of service
+  获取到区域List后再批量获取
+  所有的区域的详细信息商圈中
+  英文名称,商圈描述,居住比例,
+  酒店数量,商圈描述)
+end note
+surfaceService-->service:返回每个区域ID对应的详细信息
+/'笔记部分'/
+note over of service
+  根据返回的详细信息拼接client端
+  需要的数据格式,客户端拿到数据直
+  接展示(目前看接口数据是把所有商
+  圈数据全部返回给客户端,客户端通
+  过index值区分到底展示哪块数据)
+end note
+deactivate surfaceService
+service-->api: 返回数据给api
+deactivate service
+api-->client:数据返回给客户端
+deactivate api
+
+@enduml

@@ -1,0 +1,70 @@
+@startuml
+
+/'定义各个模块'/
+
+skinparam ParticipantPadding 30
+skinparam BoxPadding 30
+
+box "order" #LightYellow
+participant 订单中心 as order
+end box
+
+box "oh" #LightGreen
+participant 海外产品中心 as oh
+end box
+
+box "v2" #LightBlue
+participant 大SwitchV2 as v2
+end box
+
+box "zhilian" #LightGrey
+participant 直连 as zhilian
+end box
+
+box "ota" #LightRed
+participant 供应商 as ota
+end box
+/'模块之间依赖关系'/
+activate order
+
+order -> order:提交订单
+
+order -> oh:校验价格,取消政策,verifyGoods
+activate oh
+
+oh -> v2:getGoodsById()
+activate v2
+v2->zhilian:getGoodsById()
+activate zhilian
+zhilian->ota:getRooms()产品详情
+activate ota
+ota->zhilian
+deactivate ota
+zhilian->v2
+deactivate zhilian
+v2-> oh
+deactivate v2
+oh -> v2:doubleCheck()验价
+activate v2
+v2-> zhilian:doubleCheck()验价
+
+activate zhilian
+zhilian->ota:getRooms()获取锁房接口需要的Key
+activate ota
+
+ota->zhilian
+deactivate ota
+zhilian->ota:getRooms()锁房
+activate ota
+ota->zhilian
+deactivate ota
+zhilian-> v2
+deactivate zhilian
+deactivate zhilian
+v2-> oh
+deactivate v2
+deactivate v2
+oh->order
+deactivate oh
+deactivate order
+@enduml
