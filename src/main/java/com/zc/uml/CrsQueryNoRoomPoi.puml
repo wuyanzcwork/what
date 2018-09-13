@@ -1,0 +1,11 @@
+@startuml
+
+start
+  :基于cityId维度查询;
+  :基于cityId获取全量的poiId;
+  :查询房态逻辑（同上）;
+  :过滤出满房的PoiList;
+  :返回结果;
+stop
+
+@enduml

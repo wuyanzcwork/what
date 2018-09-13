@@ -1,0 +1,48 @@
+@startuml
+
+/'定义各个模块'/
+
+box "海外产品中心" #LightYellow
+participant ohGoods as ohGoods
+end box
+
+box "国内switch" #LightPink
+participant switch as switch
+end box
+
+box "国内crs" #LightGreen
+participant crs as crs
+end box
+
+
+activate ohGoods
+
+ohGoods -> ohGoods:参数组装
+
+ohGoods -> switch:获取国内上单港澳台产品\ngetGoodsByIdNoCache
+
+activate switch
+switch -> switch:参数校验
+
+note over of switch
+日期减1特殊处理
+end note
+
+switch -> crs:获取产品\nqueryGoodsInfoList
+activate crs
+crs -> switch:GetGoodsInfoByGoodIdResult
+deactivate crs
+
+switch -> switch:结果模型转换\nGetGoodsInfoByGoodIdResult->GoodsListResult
+
+switch -> crs:goods获取价格日历\nqueryPriceDayByGoodsListWithGuestCount
+activate crs
+crs -> switch:List<DatePriceQueryResult>
+deactivate crs
+
+switch -> switch:产品详情无库存，设置-1
+
+switch -> switch:模型聚合\n1、产品基础信息\n2、库存\n3、价格
+
+switch -> ohGoods:GoodsResult
+@enduml

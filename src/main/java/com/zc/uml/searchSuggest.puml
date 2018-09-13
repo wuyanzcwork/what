@@ -2,7 +2,7 @@
 
 /'定义各个模块'/
 
-box "客户端" #LightYellow
+box "产品列表"
 participant client as client
 end box
 

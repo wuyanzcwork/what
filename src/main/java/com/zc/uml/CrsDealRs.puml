@@ -1,0 +1,12 @@
+@startuml
+
+start
+  #lightgreen:deal房态转换逻辑START;
+  :找不到该goods的房态，置为不可用;
+  :goods满房转化为deal满房;
+  :goods有房转换为deal有房;
+  :其余情况，包括goods不展示和不可订，返回不可用;
+  #lightgreen:deal房态转换逻辑END;
+stop
+
+@enduml

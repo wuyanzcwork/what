@@ -1,0 +1,57 @@
+@startuml
+
+/'定义各个模块'/
+
+box "海外产品中心" #LightYellow
+participant ohGoods as ohGoods
+end box
+
+box "国内switch" #LightPink
+participant switch as switch
+end box
+
+box "国内crs" #LightGreen
+participant crs as crs
+end box
+
+
+activate ohGoods
+
+ohGoods -> ohGoods:参数组装
+note over of ohGoods
+特殊参数
+goodsType：1
+service:GAT
+onlyPersistent:true
+end note
+ohGoods -> switch:获取国内上单港澳台产品\nlistGoodsByParam
+activate switch
+switch -> switch:参数校验：\n1、开始时间结束时间合法性\n2、儿童数和儿童年龄数量\n3、GAT渠道requestSource必填\n4、只支持落地产品\nonlyPersistent=true
+
+switch -> crs:获取落地产品详情\nqueryPoiGoodsListByParamOnlyPersistent
+
+activate crs
+crs -> switch:PoiGoodsListForFilterResult
+deactivate crs
+
+switch -> crs:获取落地产品价格\nqueryPoiPrice
+activate crs
+crs -> switch:PoiIdToPriceMapResult
+deactivate crs
+
+switch -> switch:过滤掉非预付产品\npaymentType!=0
+
+switch -> switch:模型转换除价格、库存外其它属性
+note over of switch
+1、goods基本信息
+2、房型信息
+3、goods属性
+4、早餐
+5、取消政策
+end note
+
+switch -> switch:价格转换
+switch -> switch:填充库存属性
+
+switch -> ohGoods:GoodsListResult
+@enduml

@@ -1,0 +1,50 @@
+@startuml
+
+/'定义各个模块'/
+
+box "海外产品中心" #LightYellow
+participant ohGoods as ohGoods
+end box
+
+box "国内switch" #LightPink
+participant switch as switch
+end box
+
+box "国内crs" #LightGreen
+participant crs as crs
+end box
+
+
+activate ohGoods
+
+ohGoods -> ohGoods:参数组装
+note over of ohGoods
+特殊参数
+goodsType：1
+guestCount:成人数、儿童数
+end note
+
+ohGoods -> switch:获取海川上单产品\nlistGoodsByPoiId
+activate switch
+switch -> switch:参数校验
+
+switch -> switch:参数模型转换\nTZListGoodsByPoiIdParam->PoiDetailParam
+
+switch -> crs:获取落地产品\nqueryPoiGoodsListByParamOnlyPersistent
+activate crs
+crs -> switch:PoiGoodsListForFilterResult
+deactivate crs
+
+switch -> switch:结果模型转换\nPoiGoodsListForFilterResult->GoodsListResult
+
+switch -> switch:提取库存Map\nkey->goodsId,value->库存数
+
+switch -> crs:goods分组获取价格日历\nqueryPriceDayByGoodsListWithGuestCount
+activate crs
+crs -> switch:PriceDayQueryByGoodsListResult
+deactivate crs
+
+switch -> switch:模型聚合\n1、产品基础信息\n2、库存\n3、价格
+
+switch -> ohGoods:GoodsListResult
+@enduml

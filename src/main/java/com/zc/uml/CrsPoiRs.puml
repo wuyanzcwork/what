@@ -1,0 +1,73 @@
+@startuml
+
+start
+:POI房态接口（HotelRsFilterServiceThrift.filterPoiRs）;
+:参数封装（sellChannel->配置文件）;
+:参数校验;
+:会员等级调用上报;
+:POIID去重;
+#HotPink:会员等级模型转换
+只取了第一个partner的memberLevel
+poiId->userMemberLevel;
+if (roomType) then (全日房/全部)
+    if (当日单天查询) then (true)
+      :guava cache;
+      :byte转int;
+      stop
+    else (false)
+      :实时查询;
+    endif;
+else (钟点房)
+ :实时查询;
+endif
+ :过滤出有会员产品的（poi->merberLevel）;
+
+if (POI数量<100) then (true)
+  :单线程处理;
+else (false)
+  :拆分后多线程处理;
+endif;
+:区分不同roomType走不同逻辑
+缓存key不同（全日房缓存KEY/小时房缓存KEY）;
+:组装需要查询tair的缓存KEY;
+if (是否有会员产品) then (true)
+  :会员产品缓存KEY组装逻辑;
+else (false)
+  :普通产品缓存KEY组装逻辑;
+endif;
+:Join sellChannel、area，基于start路由;
+:从tair查询原始房态数据;
+#lightgreen:开始房态计算;
+:计算入离店日期间隔天数;
+:遍历原始房态数据
+（需要处理全日房、钟点房都有的情况）;
+if (是否单roomType) then (true)
+  :直接取房态，无特殊处理;
+else (false)
+  #lightgreen:房态合并逻辑;
+  :两个房态其中一个为有房时，结果为有房;
+  :两个房态其中一个为仅团购有房，且有非无效预订产品时，结果为仅团购有房，且有非无效预订产品;
+  :两个房态有一个仅团购有房的时候，结果为仅团购有房，无预订产品;
+  :两个房态中有一个是暂不可定，结果为暂不可定;
+  :两个房态一个不满足连住限制，结果为不满足连住限制;
+  :两个房态一个为满房时，结果为满房;
+  :两个房态一个为不可用日期或星期，返回不可用日期和星期;
+  :其余情况，都返回无效;
+endif;
+#lightgreen:房态转换逻辑START;
+:缓存的房态为空时，返回房态未知;
+:如果tair中的房态值为满房，则最终结果为满房;
+:如果tair中的房态值为不可用日期或星期，则最终结果为满房;
+:如果tair中的房态值为有房，则最终结果为有房;
+:如果poi的tair值为无效，那么最后poi房态为无效;
+:如果poi的tair值为可用，那么最后poi房态为仅团购有房;
+:如果poi的tair值为团购可用且有其他预订商品，那么最后poi房态为仅团购有房且有其他非无效预订商品;
+:其他情况，都返回房态未知;
+#lightgreen:房态转换逻辑END;
+:找出没有查询到房态的poi;
+:将未查询到的goods维度poi房态填充为未知;
+:未查询到房态的poi重新计算房态;
+:返回结果;
+stop
+
+@enduml
