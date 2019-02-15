@@ -1,0 +1,32 @@
+@startuml
+
+start
+#HotPink:模型转换start;
+:入参List<InvModifyForPrepayModel>;
+:解析周末定义set（5，6）;
+:库存修改日期区间转换（20180101，28100102，20180103）;
+:结果roomInvDetailMap->Map<roomId, Map<invDate, InvDetailModel>>;
+#HotPink:模型转换end;
+#FF6A6A: @1 希望修改的库存模型 Map<invDate, InvDetailModel>;
+:roomInvDetailMap遍历;
+:根据partnerId、roomId查询产品信息List;
+:取第一个goodsId查询containerList;
+:取第一个container;
+:根据containerId、startDate、endDate查询每一天的库存状态;;
+#FF6A6A: @2 查询出的每一天的库存状态 Map<invDate, InvContainerInventoryModel>;
+:根据goodsId查询产品维度库存限量;
+:计算当前room下所有goods的总库存量;Map<invDate, 库存数量>;
+if (@2的invDate中包含@1的invDate) then (修改库存逻辑)
+  :计算出
+  （1）期望修改后的预留房量
+  （2）期望修改后的可售库存量;
+:数据校验;
+:updateList 记录一条需要修改的库存信息;
+else (创建库存逻辑)
+  :数据校验;
+:insertList 记录一条需要插入的库存信息;
+endif;
+:最终的修改库存信息逻辑（略）;
+:最终的插入库存信息逻辑（略）;
+end
+@enduml

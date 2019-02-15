@@ -1,0 +1,23 @@
+@startuml
+
+start
+:需要计算的最晚预订天数->goodsId组合;
+:基于最晚预订天数计算最晚预订日期（YMD）;
+:获取goods信息（基础信息、预订规则、售卖规则、打包库存、最大连住等）;
+:同步deal->goods映射关系到缓存;
+:黑名单逻辑（黑名单、限时售卖）;
+:poiId_goodsId - containerId - 库存list，库存model转换;
+:基于访问数据计算预期连住天数;
+:计算start-end区间内的全部房态
+key:start,value:statusList;
+
+if (前一天房态为无效或当前日期无效) then (true)
+  :房态=无房;
+else (false)
+  :房态=有房;
+endif;
+:组装结果;
+:result:poi->goods->(start,status);
+stop
+
+@enduml

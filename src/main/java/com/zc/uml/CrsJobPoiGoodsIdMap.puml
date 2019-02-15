@@ -1,0 +1,11 @@
+@startuml
+
+start
+:查询全量poiId;
+:查询全量poi到goodsId映射;
+:基于goodsId查询goods详情;
+:过滤goodsSwitch为2或4的（在线或终止）;
+:同步poi->goodsList映射到缓存;
+stop
+
+@enduml
